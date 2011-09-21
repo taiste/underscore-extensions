@@ -1,9 +1,9 @@
 (function(_) {
     _.mixin({
-        pluckNested: function(obj, key) {
+        pluckNested: function(obj, key, allow_empty) {
             var keys = _.isArray(key) ? key : key.split('.');
             if(!_.isArray(obj)) { obj = [obj]; }
-            return _.map(obj, function(item) { 
+            return _.compact(_.map(obj, function(item) { 
                     var memo = item;
                     var k = [];
                     var key;
@@ -13,10 +13,14 @@
                             memo = _.pluckNested(_.values(memo), k);
                         } else if(memo[key]) {
                             memo = memo[key];
+                        } else if(allow_empty) {
+                            return memo; 
+                        } else {
+                            throw "No such key: "+key;
                         }
                     }
                     return memo;
-                });
+                }));
         },
         bipartite: function(list, criterion) {
             return _.reduce(list, 
