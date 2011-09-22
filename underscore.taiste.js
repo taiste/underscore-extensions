@@ -3,24 +3,26 @@
         pluckNested: function(obj, key, allow_empty) {
             var keys = _.isArray(key) ? key : key.split('.');
             if(!_.isArray(obj)) { obj = [obj]; }
-            return _.compact(_.map(obj, function(item) { 
+            var result = _.compact(_.map(obj, function(item) { 
                     var memo = item;
                     var k = [];
-                    var key;
+                    var subkey;
                     k.push.apply(k, keys);
-                    while((key = k.shift())) {
-                        if(key === '*') {
-                            memo = _.pluckNested(_.values(memo), k);
-                        } else if(memo[key]) {
-                            memo = memo[key];
+                    while((subkey = k.shift())) {
+                        if(subkey === '*') {
+                            return _.pluckNested(_.values(memo), k);
+                        } else if(memo[subkey]) {
+                            memo = memo[subkey];
                         } else if(allow_empty) {
-                            return memo; 
+                            return undefined;
                         } else {
-                            throw "No such key: "+key;
+                            throw "No such key: "+subkey;
                         }
                     }
-                    return memo;
+
+                    return !_.isEmpty(memo) ? memo : undefined;
                 }));
+            return result;
         },
         bipartite: function(list, criterion) {
             return _.reduce(list, 
